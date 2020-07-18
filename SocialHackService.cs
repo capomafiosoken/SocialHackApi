@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,14 @@ namespace SocialHackApi
         {
             var entity =  await _context.Districts.FirstOrDefaultAsync(x => x.Id == id);
             return entity;
+        }
+        public async Task<List<District>> LoadDistricts()
+        {
+            var entities = await _context.Districts
+                .FromSqlRaw(
+                    "select districts.*, avg(os.score) from districts\nleft join city_objects co on districts.id = co.district_id\nleft join object_scores os on co.id = os.city_object_id\ngroup by districts.id")
+                .ToListAsync();
+            return entities;
         }
         public async Task<CityTask> LoadCityTask(long id)
         {
@@ -62,12 +71,16 @@ namespace SocialHackApi
             return entities;
         }
 
+        public async Task<List<ObjectScore>> LoadObjectScores(long id)
+        {
+            var entities = await _context.ObjectScores.Where(x => x.CityObjectId == id).ToListAsync();
+            return entities;
+        }
         public async Task AddFeedback(ObjectFeedback feedback)
         {
             await _context.ObjectFeedbacks.AddAsync(feedback);
             await _context.SaveChangesAsync();
         }
-
         public async Task AddScore(ObjectScore objectScore)
         {
             await _context.ObjectScores.AddAsync(objectScore);
@@ -76,6 +89,15 @@ namespace SocialHackApi
         public async Task AddTask(CityTask cityTask)
         {
             await _context.CityTasks.AddAsync(cityTask);
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdateTask(CityTask cityTask)
+        {
+            if (!await _context.CityTasks.AnyAsync(x => x.Id == cityTask.Id))
+            {
+                throw new InvalidOperationException();
+            }
+            _context.CityTasks.Update(cityTask);
             await _context.SaveChangesAsync();
         }
     }

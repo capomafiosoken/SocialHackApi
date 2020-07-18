@@ -10,6 +10,7 @@ namespace SocialHackApi.Models
         public long Id { get; set; }
         [Column("name")]
         public string Name { get; set; }
-        public List<CityObject> CityObjects { get; set; }
+        [Column("sum")]
+        public double? Sum { get;  }
     }
 }

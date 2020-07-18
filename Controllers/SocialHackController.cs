@@ -24,10 +24,30 @@ namespace SocialHackApi.Controllers
         {
             return await _service.LoadObjectsByWeight();
         }
-        [HttpGet("cityTask")]
-        public async Task<IEnumerable<CityTask>> Get()
+        
+        [HttpGet("cityTasks")]
+        public async Task<IEnumerable<CityTask>> GetCityTasks()
         {
-            return await _service.LoadObjectsByWeight();
+            return await _service.LoadCityTasks();
+        }
+        
+        [HttpGet("objectFeedbacks")]
+        public async Task<IEnumerable<ObjectFeedback>> GetObjectFeedbacks()
+        {
+            return await _service.LoadFeedbacks();
+        }
+        
+        [HttpGet("districts")]
+        public async Task<IEnumerable<District>> GetDistricts()
+        {
+            return await _service.LoadDistricts();
+        }
+        
+        
+        [HttpGet("objectScores/{id}")]
+        public async Task<IEnumerable<ObjectScore>> GetObjectScores(long id)
+        {
+            return await _service.LoadObjectScores(id);
         }
 
         [HttpPost("feedback/create")]
@@ -43,11 +63,20 @@ namespace SocialHackApi.Controllers
             await _service.AddScore(objectScore);
             return Ok();
         }
-        [HttpPost("score/create")]
+        
+        [HttpPost("task/create")]
         public async Task<IActionResult> CreateTask([FromBody] CityTask cityTask)
         {
             await _service.AddTask(cityTask);
             return Ok();
         }
+        
+        [HttpPost("task/update")]
+        public async Task<IActionResult> UpdateTask([FromBody] CityTask cityTask)
+        {
+            await _service.UpdateTask(cityTask);
+            return Ok();
+        }
+        
     }
 }
